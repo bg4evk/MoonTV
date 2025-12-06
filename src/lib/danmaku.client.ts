@@ -17,7 +17,7 @@ function getDanmakuApiBaseUrl(): string {
   const baseUrl =
     (window as any).RUNTIME_CONFIG?.DANMU_API_BASE_URL ||
     process.env.NEXT_PUBLIC_DANMU_API_BASE_URL ||
-    'https://dm.stardm.us.kg';
+    '';
 
   return baseUrl;
 }
