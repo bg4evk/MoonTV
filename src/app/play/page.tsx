@@ -254,6 +254,43 @@ function PlayPageClient() {
   const lastVolumeRef = useRef<number>(0.7);
   // 上次使用的播放速率，默认 1.0
   const lastPlaybackRateRef = useRef<number>(1.0);
+  const lastFullscreenRef = useRef<boolean>(false);
+  const lastFullscreenWebRef = useRef<boolean>(false);
+  const danmakuConfigRef = useRef<any>({
+    danmuku: '',
+    speed: 5,
+    margin: [10, '25%'],
+    opacity: 1,
+    color: '#FFFFFF',
+    mode: 0,
+    modes: [0, 1, 2],
+    fontSize: 25,
+    antiOverlap: true,
+    synchronousPlayback: false,
+    mount: undefined,
+    heatmap: false,
+    width: 512,
+    points: [],
+    filter: (danmu: any) => danmu.text.length <= 100,
+    beforeVisible: () => true,
+    visible: true,
+    emitter: false,
+    maxLength: 200,
+    lockTime: 5,
+    theme: 'dark',
+    OPACITY: {},
+    FONT_SIZE: {},
+    MARGIN: {},
+    SPEED: {},
+    COLOR: [],
+    beforeEmit(danmu: any) {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(true);
+        }, 1000);
+      });
+    },
+  });
 
   // 换源相关状态
   const [availableSources, setAvailableSources] = useState<SearchResult[]>([]);
@@ -591,6 +628,19 @@ function PlayPageClient() {
   const cleanupPlayer = () => {
     if (artPlayerRef.current) {
       try {
+        lastFullscreenRef.current = !!artPlayerRef.current.fullscreen;
+        lastFullscreenWebRef.current = !!artPlayerRef.current.fullscreenWeb;
+        if (danmukuPluginInstanceRef.current) {
+          const inst = danmukuPluginInstanceRef.current as any;
+          if (inst.option) {
+            const next = { ...inst.option };
+            if ('mount' in next) next.mount = undefined;
+            if ('danmuku' in next) next.danmuku = "";
+            danmakuConfigRef.current = next;
+          } else if (typeof inst.visible === 'boolean') {
+            danmakuConfigRef.current.visible = inst.visible;
+          }
+        }
         // 销毁 HLS 实例
         if (artPlayerRef.current.video && artPlayerRef.current.video.hls) {
           artPlayerRef.current.video.hls.destroy();
@@ -1652,42 +1702,7 @@ function PlayPageClient() {
           crossOrigin: 'anonymous',
         },
         plugins: [
-          danmukuPluginRef.current({
-            danmuku: '', // 使用 XML 文件
-            speed: 5,
-            margin: [10, '25%'],
-            opacity: 1,
-            color: '#FFFFFF',
-            mode: 0,
-            modes: [0, 1, 2],
-            fontSize: 25,
-            antiOverlap: true,
-            synchronousPlayback: false,
-            mount: undefined,
-            heatmap: false,
-            width: 512,
-            points: [],
-            filter: (danmu: any) => danmu.text.length <= 100,
-            beforeVisible: () => true,
-            visible: true, // 始终显示，因为开关控制已移除
-            emitter: false,
-            maxLength: 200,
-            lockTime: 5,
-            theme: 'dark',
-            OPACITY: {},
-            FONT_SIZE: {},
-            MARGIN: {},
-            SPEED: {},
-            COLOR: [],
-            beforeEmit(danmu: any) {
-              return new Promise((resolve) => {
-                console.log('发送弹幕:', danmu);
-                setTimeout(() => {
-                  resolve(true);
-                }, 1000);
-              });
-            },
-          }),
+          danmukuPluginRef.current(danmakuConfigRef.current),
         ],
         // HLS 支持配置
         customType: {
@@ -1877,12 +1892,27 @@ function PlayPageClient() {
             artPlayerRef.current.plugins.artplayerPluginDanmuku;
           console.log('弹幕插件实例已捕获', danmukuPluginInstanceRef.current);
           setIsDanmakuPluginReady(true);
+          if (danmukuPluginInstanceRef.current) {
+            try {
+              danmukuPluginInstanceRef.current.config(danmakuConfigRef.current);
+            } catch (_) {}
+          }
         }
 
         // 播放器就绪后，如果正在播放则请求 Wake Lock
         if (artPlayerRef.current && !artPlayerRef.current.paused) {
           requestWakeLock();
         }
+        try {
+          if (lastFullscreenWebRef.current) {
+            artPlayerRef.current.fullscreenWeb = true;
+          }
+          if (lastFullscreenRef.current) {
+            setTimeout(() => {
+              artPlayerRef.current.fullscreen = true;
+            }, 0);
+          }
+        } catch (_) {}
       });
 
       // 监听播放状态变化，控制 Wake Lock
