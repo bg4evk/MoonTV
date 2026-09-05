@@ -309,6 +309,7 @@ services:
 | NEXT_PUBLIC_DOUBAN_IMAGE_PROXY      | 自定义豆瓣图片代理 URL                       | url prefix                       | (空)                                                                                                                       |
 | NEXT_PUBLIC_DISABLE_YELLOW_FILTER   | 关闭色情内容过滤                             | true/false                       | false                                                                                                                      |
 | NEXT_PUBLIC_DANMU_API_BASE_URL      | 弹幕接口地址                             | 接口地址                       | (空)                                                                                                                      |
+| NEXT_PUBLIC_PLAYBACK_SAVE_INTERVAL | 播放进度自动保存间隔（秒） | 正整数（建议 5-60，Upstash 建议 ≥20） | 按存储类型：Upstash 20 / 其余 5                                                             |
 
 NEXT_PUBLIC_DOUBAN_PROXY_TYPE 选项解释：
 

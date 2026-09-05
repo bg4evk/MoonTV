@@ -775,6 +775,7 @@ function HomeClient() {
                             episodes={item.episodes}
                             currentEpisode={item.watchedEpisodes}
                             from='playrecord'
+                            hideProgress
                             type={item.episodes > 1 ? 'tv' : ''}
                           />
                           <div className='mt-2 text-center text-xs font-medium text-green-600 dark:text-green-400'>
@@ -818,6 +819,7 @@ function HomeClient() {
                               episodes={item.episodes}
                               currentEpisode={item.watchedEpisodes}
                               from='playrecord'
+                              hideProgress
                               type={item.episodes > 1 ? 'tv' : ''}
                             />
                             <div className='mt-2 text-center text-xs font-medium text-red-500 dark:text-red-400'>
@@ -858,6 +860,7 @@ function HomeClient() {
                             episodes={item.episodes}
                             currentEpisode={item.watchedEpisodes}
                             from='playrecord'
+                            hideProgress
                             type={item.episodes > 1 ? 'tv' : ''}
                           />
                           <div className='mt-2 text-center text-xs text-gray-500 dark:text-gray-400'>
