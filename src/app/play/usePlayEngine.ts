@@ -26,6 +26,7 @@ import { getRequestTimeout, getVideoResolutionFromM3u8 } from '@/lib/utils';
 
 import { triggerGlobalError } from '@/components/GlobalErrorIndicator';
 
+import { wrapArtplayerPluginDanmuku } from './danmuku-live-font-size';
 import { useVideoActions } from './hooks/useVideoActions';
 import { useWakeLock } from './hooks/useWakeLock';
 import {
@@ -1463,7 +1464,8 @@ export function usePlayEngine() {
         if (!mounted) return;
         artLibRef.current = Art;
         hlsLibRef.current = Hls;
-        danmukuPluginRef.current = artplayerPluginDanmuku;
+        danmukuPluginRef.current =
+          wrapArtplayerPluginDanmuku(artplayerPluginDanmuku);
         setLibsReady(true);
       } catch (err) {
         console.error('加载播放器库失败:', err);
